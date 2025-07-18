@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Obtener estado completo del juego del usuario
 router.get('/state', authenticateToken, (req, res) => {
+    console.log('🎮 Obteniendo estado del juego para usuario:', req.user.userId);
     const userId = req.user.userId;
     const db = req.app.locals.db;
 
@@ -77,10 +78,16 @@ router.get('/state', authenticateToken, (req, res) => {
 
         const gameState = results[0];
         
-        // Parsear JSON strings
-        gameState.seed_inventory = JSON.parse(gameState.seed_inventory || '[]');
-        gameState.fruit_inventory = JSON.parse(gameState.fruit_inventory || '[]');
-        gameState.plots = JSON.parse(gameState.plots || '[]');
+        // Parsear JSON strings (verificar si ya son objetos)
+        gameState.seed_inventory = typeof gameState.seed_inventory === 'string' 
+            ? JSON.parse(gameState.seed_inventory || '[]') 
+            : gameState.seed_inventory || [];
+        gameState.fruit_inventory = typeof gameState.fruit_inventory === 'string' 
+            ? JSON.parse(gameState.fruit_inventory || '[]') 
+            : gameState.fruit_inventory || [];
+        gameState.plots = typeof gameState.plots === 'string' 
+            ? JSON.parse(gameState.plots || '[]') 
+            : gameState.plots || [];
 
         res.json(gameState);
     });

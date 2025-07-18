@@ -2,6 +2,20 @@ const express = require('express');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
+// Función para calcular el progreso de crecimiento en JavaScript
+function calculatePlantGrowthProgress(plantedAt, growthTimeHours) {
+    if (!plantedAt || !growthTimeHours || growthTimeHours <= 0) {
+        return 0;
+    }
+    
+    const now = new Date();
+    const planted = new Date(plantedAt);
+    const hoursElapsed = (now - planted) / (1000 * 60 * 60); // Convertir ms a horas
+    const progress = Math.min(100, (hoursElapsed / growthTimeHours) * 100);
+    
+    return Math.round(progress * 100) / 100; // Redondear a 2 decimales
+}
+
 // Obtener estado completo del juego del usuario
 router.get('/state', authenticateToken, (req, res) => {
     const userId = req.user.userId;
@@ -51,11 +65,7 @@ router.get('/state', authenticateToken, (req, res) => {
                     'planted_at', up.planted_at,
                     'growth_time_hours', st.growth_time_hours,
                     'is_ready', up.is_ready_to_harvest,
-                    'progress', CASE 
-                        WHEN up.seed_type_id IS NOT NULL THEN 
-                            GetPlantGrowthProgress(up.planted_at, st.growth_time_hours)
-                        ELSE NULL 
-                    END
+                    'progress', NULL
                 )
             ) FROM user_plots up 
             LEFT JOIN seed_types st ON up.seed_type_id = st.id 
@@ -87,6 +97,24 @@ router.get('/state', authenticateToken, (req, res) => {
         gameState.plots = typeof gameState.plots === 'string' 
             ? JSON.parse(gameState.plots || '[]') 
             : gameState.plots || [];
+
+        // Calcular progreso de crecimiento en JavaScript
+        if (Array.isArray(gameState.plots)) {
+            gameState.plots = gameState.plots.map(plot => {
+                // Calcular progreso usando nuestra función JS
+                const progress = plot.planted_at ? 
+                    calculatePlantGrowthProgress(plot.planted_at, plot.growth_time_hours) : 0;
+                
+                // Determinar si está lista para cosechar
+                const isReady = progress >= 100;
+                
+                return {
+                    ...plot,
+                    progress: progress,
+                    is_ready: isReady
+                };
+            });
+        }
 
         res.json(gameState);
     });
@@ -194,24 +222,51 @@ router.post('/update-plants', authenticateToken, (req, res) => {
     const userId = req.user.userId;
     const db = req.app.locals.db;
 
-    const updateQuery = `
-        UPDATE user_plots up
+    // Obtener plantas que necesitan verificación
+    const selectQuery = `
+        SELECT up.id, up.planted_at, st.growth_time_hours
+        FROM user_plots up
         JOIN seed_types st ON up.seed_type_id = st.id
-        SET up.is_ready_to_harvest = TRUE
         WHERE up.user_id = ? 
         AND up.seed_type_id IS NOT NULL 
         AND up.is_ready_to_harvest = FALSE
-        AND GetPlantGrowthProgress(up.planted_at, st.growth_time_hours) >= 100
+        AND up.planted_at IS NOT NULL
     `;
 
-    db.query(updateQuery, [userId], (err, results) => {
+    db.query(selectQuery, [userId], (err, plants) => {
         if (err) {
-            return res.status(500).json({ error: 'Error actualizando plantas' });
+            return res.status(500).json({ error: 'Error obteniendo plantas' });
         }
 
-        res.json({ 
-            message: 'Estado de plantas actualizado', 
-            plantsReady: results.affectedRows 
+        let plantsToUpdate = [];
+        
+        // Verificar cada planta con JavaScript
+        plants.forEach(plant => {
+            const progress = calculatePlantGrowthProgress(plant.planted_at, plant.growth_time_hours);
+            if (progress >= 100) {
+                plantsToUpdate.push(plant.id);
+            }
+        });
+
+        if (plantsToUpdate.length === 0) {
+            return res.json({ 
+                message: 'Estado de plantas actualizado', 
+                plantsReady: 0 
+            });
+        }
+
+        // Actualizar plantas listas
+        const updateQuery = `UPDATE user_plots SET is_ready_to_harvest = TRUE WHERE id IN (${plantsToUpdate.map(() => '?').join(',')})`;
+        
+        db.query(updateQuery, plantsToUpdate, (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: 'Error actualizando plantas' });
+            }
+
+            res.json({ 
+                message: 'Estado de plantas actualizado', 
+                plantsReady: results.affectedRows 
+            });
         });
     });
 });

@@ -13,16 +13,21 @@ const AuthForm = ({ onLogin, onRegister }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('📝 Formulario enviado con datos:', formData);
+    console.log('📝 Modo login:', isLogin);
     setError('');
     setLoading(true);
 
     try {
       let result;
       if (isLogin) {
+        console.log('🔑 Llamando función onLogin...');
         result = await onLogin(formData.username, formData.password);
       } else {
+        console.log('👤 Llamando función onRegister...');
         result = await onRegister(formData.username, formData.email, formData.password);
       }
+      console.log('📋 Resultado:', result);
 
       if (!result.success) {
         setError(result.error);

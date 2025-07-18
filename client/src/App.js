@@ -46,11 +46,14 @@ function App() {
   };
 
   const login = async (username, password) => {
+    console.log('🔑 Intentando login con:', username);
     try {
+      console.log('📡 Enviando petición a:', `${API_BASE}/auth/login`);
       const response = await axios.post(`${API_BASE}/auth/login`, {
         username,
         password
       });
+      console.log('✅ Respuesta recibida:', response.data);
 
       const { token, user } = response.data;
       localStorage.setItem('token', token);
@@ -59,6 +62,7 @@ function App() {
       await fetchGameState();
       return { success: true };
     } catch (error) {
+      console.error('❌ Error en login:', error);
       return { 
         success: false, 
         error: error.response?.data?.error || 'Error de conexión' 

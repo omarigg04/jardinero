@@ -1,0 +1,206 @@
+.plot {
+  aspect-ratio: 1;
+  border: 3px solid #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+}
+
+.plot:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.plot.empty {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-color: #ccc;
+  border-style: dashed;
+}
+
+.plot.empty:hover {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border-color: #4caf50;
+}
+
+.plot.empty.selected {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border-color: #4caf50;
+  border-style: solid;
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #4caf50; }
+  50% { border-color: #81c784; }
+}
+
+.plot.planted {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-color: #ff9800;
+}
+
+.plot.planted.ready {
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+  border-color: #4caf50;
+  animation: ready-glow 2s infinite;
+}
+
+@keyframes ready-glow {
+  0%, 100% { box-shadow: 0 0 15px rgba(76, 175, 80, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(76, 175, 80, 0.6); }
+}
+
+.empty-plot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+}
+
+.plot-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.plant-here {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.planted-plot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.plant-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.planted-plot:hover .plant-emoji {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.plant-info {
+  width: 100%;
+}
+
+.plant-name {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.3rem;
+}
+
+.progress-bar {
+  background: #e0e0e0;
+  border-radius: 10px;
+  height: 8px;
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+.progress-text {
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: bold;
+}
+
+.harvest-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4caf50;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  animation: pulse-indicator 1.5s infinite;
+}
+
+@keyframes pulse-indicator {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@media (max-width: 768px) {
+  .plot {
+    min-height: 100px;
+  }
+  
+  .plant-emoji {
+    font-size: 2rem;
+  }
+  
+  .plant-name {
+    font-size: 0.7rem;
+  }
+  
+  .progress-bar {
+    height: 6px;
+  }
+  
+  .progress-text {
+    font-size: 0.6rem;
+  }
+  
+  .harvest-indicator {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .plot {
+    min-height: 80px;
+  }
+  
+  .plant-emoji {
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+  
+  .plot-number {
+    font-size: 1rem;
+  }
+  
+  .plant-here {
+    font-size: 1.5rem;
+  }
+}

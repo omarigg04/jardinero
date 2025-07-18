@@ -98,7 +98,7 @@ const Shop = ({ gameState, onPurchase }) => {
       <div className="shop-header">
         <h3>🏪 Tienda del Jardinero</h3>
         <div className="money-display">
-          💰 Dinero disponible: ${gameState.money?.toFixed(2)}
+          💰 Dinero disponible: ${parseFloat(gameState.money || 0).toFixed(2)}
         </div>
       </div>
 
@@ -130,7 +130,7 @@ const Shop = ({ gameState, onPurchase }) => {
                 </div>
                 <button
                   onClick={() => buySeed(seed.id)}
-                  disabled={loading || gameState.money < seed.buy_price}
+                  disabled={loading || parseFloat(gameState.money || 0) < seed.buy_price}
                   className="buy-btn"
                 >
                   {loading ? '⏳' : '🛒'} Comprar

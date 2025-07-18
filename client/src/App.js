@@ -31,7 +31,7 @@ function App() {
       setUser({
         id: response.data.id,
         username: response.data.username,
-        money: response.data.money,
+        money: parseFloat(response.data.money),
         experience: response.data.experience,
         level: response.data.level
       });

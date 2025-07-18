@@ -4,7 +4,6 @@ const router = express.Router();
 
 // Obtener estado completo del juego del usuario
 router.get('/state', authenticateToken, (req, res) => {
-    console.log('🎮 Obteniendo estado del juego para usuario:', req.user.userId);
     const userId = req.user.userId;
     const db = req.app.locals.db;
 
